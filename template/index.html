@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medius Technologies</title>
+    <link rel="stylesheet" href="/static/style2.css">
+    <script>
+        async function uploadFile(event) {
+            event.preventDefault();
+    
+            // Show the loader
+            document.getElementById("loaderContainer").style.display = "flex"; // Use "flex" to show the loader container
+    
+            const formData = new FormData(document.getElementById("uploadForm"));
+    
+            try {
+                const response = await fetch("{% url 'file-upload' %}", {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                });
+    
+                const data = await response.json();
+    
+                // Hide the loader
+                document.getElementById("loaderContainer").style.display = "none";
+    
+                if (response.ok) {
+                    alert(data.message);
+                    // Redirect to the index page after alert
+                    window.location.href = "{% url 'index' %}";
+                } else {
+                    alert("Error: " + data.error);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred. Please try again.");
+    
+                // Hide the loader if an error occurs
+                document.getElementById("loaderContainer").style.display = "none";
+            }
+        }
+    </script>        
+</head>
+<body>
+    <header>
+        <h1 id="header-heading">
+            Medius Technologies Pvt. Ltd.
+        </h1>
+    </header>
+    <h1 id="welcomeHeading">Welcome to CSV Analysis</h1>
+    <form id="uploadForm" method="post" enctype="multipart/form-data" onsubmit="uploadFile(event)">
+        {% csrf_token %}
+        <label for="file" style="font-size: 20px;"><b>Choose file (CSV or Excel):</b></label>
+        <input type="file" name="file" id="file" accept=".csv, .xlsx" required>
+        <button type="submit" id="application_link">Prepare Summary</button>
+        <button type="reset" id="application_link_reset">Reset</button>
+    </form>
+
+     <!-- Loader container -->
+     <div id="loaderContainer" class="loader-container">
+        <div class="loader"></div>
+    </div>
+
+</body>
+</html>
